@@ -6,7 +6,7 @@
 using namespace std;
 
 vector<vector<int>> v;
-vector<int> total;
+vector<int> answer;
 vector<bool> visited;
 
 void BFS(int node)
@@ -40,35 +40,33 @@ int main()
 	cin >> n >> m;
 
 	v.resize(n + 1);
-	total.resize(n + 1);
-	visited.resize(n + 1);
-	vector<bool> temp = visited;
+	answer.resize(n + 1);
 
-	int v1, v2;
-	for (int i = 0; i < m; i++)
+	for(int i=0; i<m; i++)
 	{
-		scanf_s("%d %d", &v1, &v2);
+		int v1,v2;
+		cin >> v1 >> v2;
 		v[v1].push_back(v2);
 	}
 
+	visited.resize(n+1);
 
-	for (int i = 1; i <= n; i++)
+	for(int i=0; i<=n; i++)
 	{
-		visited = temp;
+		fill(visited.begin(), visited.end(), false);
 		BFS(i);
 	}
 
-	int max = 0;
+	int maxVal;
 
-	for (int i = 1; i <= n; i++)
+	for(int i=1; i<=n; i++)
 	{
-		if (max < total[i])
-			max = total[i];
+		maxVal = max(maxVal, answer[i]);
 	}
 
-	for (int i = 1; i <= n; i++)
+	for(int i1; i<=n; i++)
 	{
-		if (max == total[i])
+		if(answer[i] == maxVal)
 		{
 			cout << i << " ";
 		}
