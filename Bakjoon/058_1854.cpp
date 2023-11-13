@@ -5,33 +5,44 @@
 
 using namespace std;
 
-#define INF 2147483647
+#define INF 2100000000
 
 vector<vector<pair<int, int>>> adj;
-vector<bool> visited;
-vector<int> cost;
-priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
+priority_queue<int> result[1001];
 
-void BFS()
+void dijkstra(int k)
 {
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
+
+    q.push({ 0, 1 });
+
+    // 1->1로 가는 첫번째 최단경로는 0
+    result[1].push(0);
+
     while (!q.empty())
     {
-        int node = q.top().second;
+        int curNode = q.top().second;
+        int curWeight = q.top().first;
         q.pop();
 
-        if (visited[node]) continue;
-
-        visited[node] = true;
-
-        for (size_t i = 0; i < adj[node].size(); i++)
+        for (int i = 0; i < adj[curNode].size(); i++)
         {
-            int index = adj[node][i].first;
-            int weight = adj[node][i].second;
+            int nextNode = adj[curNode][i].first;
+            int cost = curWeight + adj[curNode][i].second;
 
-            if (cost[node] + weight < cost[index])
+            if (result[nextNode].size() < k)
             {
-                cost[index] = cost[node] + weight;
-                q.push({ cost[index], index });
+                result[nextNode].push(cost);
+                q.push({ cost, nextNode });
+            }
+            else
+            {
+                if (result[nextNode].top() > cost)
+                {
+                    result[nextNode].pop();
+                    result[nextNode].push(cost);
+                    q.push({ cost, nextNode });
+                }
             }
         }
     }
@@ -39,36 +50,28 @@ void BFS()
 
 int main()
 {
-    int V, E;
-    cin >> V >> E;
+    int n, m, k;
+    cin >> n >> m >> k;
+    
+    adj.resize(n + 1);
 
-    adj.resize(V + 1);
-    cost.resize(V + 1);
-    visited.resize(V + 1);
-
-    fill(cost.begin(), cost.end(), INF);
-
-    int k;
-    cin >> k;
-
-    int u, v, w;
-
-    for (int i = 0; i < E; i++)
+    for (int i = 0; i < m; i++)
     {
+        int u, v, w;
         scanf_s("%d %d %d", &u, &v, &w);
-        adj[u].push_back({ v, w });
+        adj[u].push_back({ v,w });
     }
 
-    cost[k] = 0;
-    q.push({ 0, k });
-    BFS();
+    dijkstra(k);
 
-    for (size_t i = 1; i < cost.size(); i++)
+    for (int i = 1; i < n + 1; i++)
     {
-        if (cost[i] == INF) printf("INF\n");
+        if (result[i].size() < k)
+            printf("-1\n");
         else
-            printf("%d\n", cost[i]);
+            printf("%d\n", result[i].top());
     }
+
 
     return 0;
 }
