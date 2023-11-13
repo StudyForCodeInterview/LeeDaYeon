@@ -5,70 +5,68 @@
 
 using namespace std;
 
-#define INF 2147483647
+#define INF 2100000000
 
 vector<vector<pair<int, int>>> adj;
-vector<bool> visited;
 vector<int> cost;
+vector<int> visited;
 priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
 
-void BFS()
+void BFS(int end)
 {
     while (!q.empty())
     {
-        int node = q.top().second;
+        int curNode = q.top().second;
+        int curWeight = q.top().first;
         q.pop();
 
-        if (visited[node]) continue;
+        if (visited[curNode]) continue;
+        visited[curNode] = true;
 
-        visited[node] = true;
-
-        for (size_t i = 0; i < adj[node].size(); i++)
+        for (int i = 0; i < adj[curNode].size(); i++)
         {
-            int index = adj[node][i].first;
-            int weight = adj[node][i].second;
+            int nextNode = adj[curNode][i].first;
+            int nextWeight = adj[curNode][i].second;
 
-            if (cost[node] + weight < cost[index])
+            if (cost[curNode] + nextWeight < cost[nextNode])
             {
-                cost[index] = cost[node] + weight;
-                q.push({ cost[index], index });
+                cost[nextNode] = cost[curNode] + nextWeight;
+
+                if (nextNode != end)
+                    q.push({ cost[nextNode], nextNode });
             }
+
         }
     }
 }
 
 int main()
 {
-    int V, E;
-    cin >> V >> E;
+    int n, m;
+    cin >> n;
+    cin >> m;
+    
+    adj.resize(n + 1);
+    cost = vector<int>(n + 1, INF);
+    visited.resize(n + 1);
 
-    adj.resize(V + 1);
-    cost.resize(V + 1);
-    visited.resize(V + 1);
-
-    fill(cost.begin(), cost.end(), INF);
-
-    int k;
-    cin >> k;
-
-    int u, v, w;
-
-    for (int i = 0; i < E; i++)
+    for (int i = 0; i < m; i++)
     {
+        int u, v, w;
         scanf_s("%d %d %d", &u, &v, &w);
-        adj[u].push_back({ v, w });
+        
+        adj[u].push_back({ v,w });
     }
 
-    cost[k] = 0;
-    q.push({ 0, k });
-    BFS();
+    int start, end;
+    cin >> start >> end;
 
-    for (size_t i = 1; i < cost.size(); i++)
-    {
-        if (cost[i] == INF) printf("INF\n");
-        else
-            printf("%d\n", cost[i]);
-    }
+    cost[start] = 0;
+    q.push({ cost[start], start});
+    BFS(end);
+
+
+    cout << cost[end] << endl;
 
     return 0;
 }
