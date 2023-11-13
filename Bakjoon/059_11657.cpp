@@ -1,74 +1,77 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <queue>
+#include <tuple>
 
 using namespace std;
 
-#define INF 2147483647
+#define INF 210000000L
 
-vector<vector<pair<int, int>>> adj;
-vector<bool> visited;
-vector<int> cost;
-priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
-
-void BFS()
-{
-    while (!q.empty())
-    {
-        int node = q.top().second;
-        q.pop();
-
-        if (visited[node]) continue;
-
-        visited[node] = true;
-
-        for (size_t i = 0; i < adj[node].size(); i++)
-        {
-            int index = adj[node][i].first;
-            int weight = adj[node][i].second;
-
-            if (cost[node] + weight < cost[index])
-            {
-                cost[index] = cost[node] + weight;
-                q.push({ cost[index], index });
-            }
-        }
-    }
-}
+vector<tuple<int, int, int>> edge;
+vector<long> cost;
 
 int main()
 {
-    int V, E;
-    cin >> V >> E;
+    int n, m;
+    cin >> n >> m;
 
-    adj.resize(V + 1);
-    cost.resize(V + 1);
-    visited.resize(V + 1);
+    //edge.resize(m + 1);
+    cost = vector<long>(n + 1, INF);
 
-    fill(cost.begin(), cost.end(), INF);
-
-    int k;
-    cin >> k;
-
-    int u, v, w;
-
-    for (int i = 0; i < E; i++)
+    for (int i = 0; i < m; i++)
     {
-        scanf_s("%d %d %d", &u, &v, &w);
-        adj[u].push_back({ v, w });
+        int a, b, c;
+        scanf_s("%d %d %d", &a, &b, &c);
+        edge.push_back(make_tuple(a, b, c));
     }
 
-    cost[k] = 0;
-    q.push({ 0, k });
-    BFS();
+    cost[1] = 0;
 
-    for (size_t i = 1; i < cost.size(); i++)
+    // n - 1 회 반복
+    for (int i = 1; i < n; i++)
     {
-        if (cost[i] == INF) printf("INF\n");
-        else
-            printf("%d\n", cost[i]);
+        for (int j = 0; j < m; j++)
+        {
+            tuple<int, int, int> tmp = edge[j];
+            int start = get<0>(tmp);
+            int end = get<1>(tmp);
+            int value = get<2>(tmp);
+
+            if (cost[start] != INF && cost[end] > cost[start] + value)
+            {
+                cost[end] = cost[start] + value;
+            }
+        }
     }
+
+    bool flag = false;
+
+    for (int i = 0; i < m; i++)
+    {
+        tuple<int, int, int> tmp = edge[i];
+        int start = get<0>(tmp);
+        int end = get<1>(tmp);
+        int value = get<2>(tmp);
+
+        if (cost[start] != INF && cost[end] > cost[start] + value)
+        {
+            flag = true;
+            break;
+        }
+    }
+
+    if (!flag)
+    {
+        for (int i = 2; i < n + 1; i++)
+        {
+            if (cost[i] == INF)
+                printf("-1\n");
+            else
+                printf("%d\n", cost[i]);
+        }
+    }
+    else
+        printf("-1\n");
 
     return 0;
 }
